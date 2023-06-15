@@ -38,8 +38,8 @@ struct RectilinearGrid {
 
   // dydy and an array of IDs, mapping to the dxdy
   constexpr RectilinearGrid(std::vector<Vec2<T>> const & /*dxdy*/,
-                            std::vector<std::vector<int>> const & /*ids*/)
-    requires(D == 2);
+                            std::vector<std::vector<int>> const & /*ids*/) requires(D ==
+                                                                                    2);
 
   // -- Methods --
 
@@ -47,7 +47,7 @@ struct RectilinearGrid {
 
   UM2_NDEBUG_PURE UM2_HOSTDEV [[nodiscard]] constexpr auto getBox(len_t i, len_t j) const
       -> AABox2<T>
-    requires(D == 2);
+  requires(D == 2);
 };
 
 // -- Aliases --
@@ -71,44 +71,41 @@ using RectilinearGrid3d = RectilinearGrid3<double>;
 
 // Minima/maxima accessors.
 template <len_t D, typename T>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto xMin(RectilinearGrid<D, T> const & /*grid*/) -> T;
+requires(D >= 1) UM2_PURE UM2_HOSTDEV
+    constexpr auto xMin(RectilinearGrid<D, T> const & /*grid*/) -> T;
 
 template <len_t D, typename T>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto yMin(RectilinearGrid<D, T> const & /*grid*/) -> T;
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto yMin(RectilinearGrid<D, T> const & /*grid*/) -> T;
 
 template <len_t D, typename T>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto zMin(RectilinearGrid<D, T> const & /*grid*/) -> T;
+requires(D >= 3) UM2_PURE UM2_HOSTDEV
+    constexpr auto zMin(RectilinearGrid<D, T> const & /*grid*/) -> T;
 
 template <len_t D, typename T>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto xMax(RectilinearGrid<D, T> const & /*grid*/) -> T;
+requires(D >= 1) UM2_PURE UM2_HOSTDEV
+    constexpr auto xMax(RectilinearGrid<D, T> const & /*grid*/) -> T;
 
 template <len_t D, typename T>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto yMax(RectilinearGrid<D, T> const & /*grid*/) -> T;
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto yMax(RectilinearGrid<D, T> const & /*grid*/) -> T;
 
 template <len_t D, typename T>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto zMax(RectilinearGrid<D, T> const & /*grid*/) -> T;
+requires(D >= 3) UM2_PURE UM2_HOSTDEV
+    constexpr auto zMax(RectilinearGrid<D, T> const & /*grid*/) -> T;
 
 // Number of divisions accessors.
 template <len_t D, typename T>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto numXcells(RectilinearGrid<D, T> const & /*grid*/)
-    -> len_t;
+requires(D >= 1) UM2_PURE UM2_HOSTDEV
+    constexpr auto numXcells(RectilinearGrid<D, T> const & /*grid*/) -> len_t;
 
 template <len_t D, typename T>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto numYcells(RectilinearGrid<D, T> const & /*grid*/)
-    -> len_t;
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto numYcells(RectilinearGrid<D, T> const & /*grid*/) -> len_t;
 
 template <len_t D, typename T>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto numZcells(RectilinearGrid<D, T> const & /*grid*/)
-    -> len_t;
+requires(D >= 3) UM2_PURE UM2_HOSTDEV
+    constexpr auto numZcells(RectilinearGrid<D, T> const & /*grid*/) -> len_t;
 
 template <len_t D, typename T>
 UM2_PURE UM2_HOSTDEV constexpr auto numCells(RectilinearGrid<D, T> const & /*grid*/)
@@ -116,16 +113,16 @@ UM2_PURE UM2_HOSTDEV constexpr auto numCells(RectilinearGrid<D, T> const & /*gri
 
 // Width/hight/depth
 template <len_t D, typename T>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto width(RectilinearGrid<D, T> const & /*grid*/) -> T;
+requires(D >= 1) UM2_PURE UM2_HOSTDEV
+    constexpr auto width(RectilinearGrid<D, T> const & /*grid*/) -> T;
 
 template <len_t D, typename T>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto height(RectilinearGrid<D, T> const & /*grid*/) -> T;
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto height(RectilinearGrid<D, T> const & /*grid*/) -> T;
 
 template <len_t D, typename T>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto depth(RectilinearGrid<D, T> const & /*grid*/) -> T;
+requires(D >= 3) UM2_PURE UM2_HOSTDEV
+    constexpr auto depth(RectilinearGrid<D, T> const & /*grid*/) -> T;
 
 // Bounding box
 template <len_t D, typename T>
