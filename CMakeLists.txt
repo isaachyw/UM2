@@ -36,22 +36,28 @@ option(UM2_ENABLE_CPPCHECK      "Enable cppcheck"                 ${UM2_DEV_MODE
 ###############################################################################
 
 # Headers
+file(GLOB_RECURSE MESH_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/include/um2/mesh/*.hpp")
+
+# Headers
 set(UM2_HEADERS
-    "include/um2/common/config.hpp"
-    "include/um2/common/bit.hpp"
-    "include/um2/common/sto.hpp"
-    "include/um2/common/vector.hpp"
-    "include/um2/common/string.hpp"
-    "include/um2/common/color.hpp"
-    "include/um2/math/morton.hpp"
-    "include/um2/math/vec.hpp"
-    "include/um2/math/mat.hpp"
-    "include/um2/geometry/point.hpp"
-    "include/um2/geometry/axis_aligned_box.hpp"
-    "include/um2/geometry/polytope.hpp"
-    "include/um2/geometry/line_segment.hpp"
-    "include/um2/geometry/triangle.hpp"
-    "include/um2c.h")    
+        "include/um2/common/config.hpp"
+        "include/um2/common/bit.hpp"
+        "include/um2/common/sto.hpp"
+        "include/um2/common/vector.hpp"
+        "include/um2/common/string.hpp"
+        "include/um2/common/color.hpp"
+        "include/um2/math/morton.hpp"
+        "include/um2/math/vec.hpp"
+        "include/um2/math/mat.hpp"
+        "include/um2/geometry/point.hpp"
+        "include/um2/geometry/axis_aligned_box.hpp"
+        "include/um2/geometry/polytope.hpp"
+        "include/um2/geometry/line_segment.hpp"
+        "include/um2/geometry/triangle.hpp"
+        ${MESH_HEADERS}
+        "include/um2/mesh/regular_grid.inl"
+        "include/um2/mesh/rectilinear_grid.inl"
+        "include/um2c.h")
 
 # Sources
 set(UM2_SOURCES        
