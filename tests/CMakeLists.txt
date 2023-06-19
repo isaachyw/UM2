@@ -21,11 +21,8 @@ add_um2_test(axis_aligned_box ./geometry/axis_aligned_box.cpp)
 add_um2_test(line_segment ./geometry/line_segment.cpp)
 add_um2_test(triangle ./geometry/triangle.cpp)
 
-# mesh
-add_um2_test(cell_type ./mesh/cell_type.cpp)
-add_um2_test(mesh_type ./mesh/mesh_type.cpp)
-add_um2_test(regular_grid ./mesh/regular_grid.cpp)
-add_um2_test(rectilinear_grid ./mesh/rectilinear_grid.cpp)
+# ray_casting
+add_um2_test(ray-line_segment ./ray_casting/intersect/ray-line_segment.cpp)
 
 if (UM2_ENABLE_VIS)
     add_um2_test(shader ./visualization/shader.cpp)
