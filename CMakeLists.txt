@@ -36,6 +36,7 @@ option(UM2_ENABLE_CPPCHECK "Enable cppcheck" ${UM2_DEV_MODE})
 ###############################################################################
 
 file(GLOB_RECURSE RAY_CASTING_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/include/um2/ray_casting/*.hpp")
+file(GLOB_RECURSE MESH_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/include/um2/mesh/*.hpp")
 
 # Headers
 set(UM2_HEADERS
@@ -53,6 +54,7 @@ set(UM2_HEADERS
         "include/um2/geometry/polytope.hpp"
         "include/um2/geometry/line_segment.hpp"
         "include/um2/geometry/triangle.hpp"
+        ${MESH_HEADERS}
         ${RAY_CASTING_HEADERS}
         "include/um2c.h")
 

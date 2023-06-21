@@ -23,6 +23,10 @@ add_um2_test(triangle ./geometry/triangle.cpp)
 
 # ray_casting
 add_um2_test(ray-line_segment ./ray_casting/intersect/ray-line_segment.cpp)
+add_um2_test(ray-linear_polygon_mesh ./ray_casting/intersect/ray-linear_polygon_mesh.cpp)
+
+# mesh
+add_um2_test(face_vertex_mesh ./mesh/face_vertex_mesh.cpp)
 
 if (UM2_ENABLE_VIS)
     add_um2_test(shader ./visualization/shader.cpp)
