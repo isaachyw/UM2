@@ -44,24 +44,23 @@ void intersect(
 {
   T const r_miss = infiniteDistance<T>();
   int nintersect = 0;
-  int const n0 = *n;
   for (len_t iface = 0; iface < numFaces(mesh); ++iface) {
     auto const & v0 = mesh.vertices[mesh.fv[3 * iface]];
     auto const & v1 = mesh.vertices[mesh.fv[3 * iface + 1]];
     auto const & v2 = mesh.vertices[mesh.fv[3 * iface + 2]];
     T const r0 = intersect(ray, LineSegment2<T>(v0, v1));
     if (r0 < r_miss) {
-      assert(nintersect < n0);
+      assert(nintersect < *n);
       intersections[nintersect++] = r0;
     }
     T const r1 = intersect(ray, LineSegment2<T>(v1, v2));
     if (r1 < r_miss) {
-      assert(nintersect < n0);
+      assert(nintersect < *n);
       intersections[nintersect++] = r1;
     }
     T const r2 = intersect(ray, LineSegment2<T>(v2, v0));
     if (r2 < r_miss) {
-      assert(nintersect < n0);
+      assert(nintersect < *n);
       intersections[nintersect++] = r2;
     }
   }
@@ -77,7 +76,6 @@ void intersect(
 {
   T const r_miss = infiniteDistance<T>();
   int nintersect = 0;
-  int const n0 = *n;
   for (len_t iface = 0; iface < numFaces(mesh); ++iface) {
     auto const & v0 = mesh.vertices[mesh.fv[4 * iface]];
     auto const & v1 = mesh.vertices[mesh.fv[4 * iface + 1]];
@@ -85,22 +83,22 @@ void intersect(
     auto const & v3 = mesh.vertices[mesh.fv[4 * iface + 3]];
     T const r0 = intersect(ray, LineSegment2<T>(v0, v1));
     if (r0 < r_miss) {
-      assert(nintersect < n0);
+      assert(nintersect < *n);
       intersections[nintersect++] = r0;
     }
     T const r1 = intersect(ray, LineSegment2<T>(v1, v2));
     if (r1 < r_miss) {
-      assert(nintersect < n0);
+      assert(nintersect < *n);
       intersections[nintersect++] = r1;
     }
     T const r2 = intersect(ray, LineSegment2<T>(v2, v3));
     if (r2 < r_miss) {
-      assert(nintersect < n0);
+      assert(nintersect < *n);
       intersections[nintersect++] = r2;
     }
     T const r3 = intersect(ray, LineSegment2<T>(v3, v0));
     if (r3 < r_miss) {
-      assert(nintersect < n0);
+      assert(nintersect < *n);
       intersections[nintersect++] = r3;
     }
   }
@@ -115,7 +113,6 @@ void intersect(
 {
   T const r_miss = infiniteDistance<T>();
   int nintersect = 0;
-  int const n0 = *n;
   for (len_t iface = 0; iface < numFaces(mesh); ++iface) {
     auto const offset0 = mesh.fv_offsets[iface];
     auto const offset1 = mesh.fv_offsets[iface + 1];
@@ -125,30 +122,30 @@ void intersect(
     auto const & v2 = mesh.vertices[mesh.fv[offset0 + 2]];
     T const r0 = intersect(ray, LineSegment2<T>(v0, v1));
     if (r0 < r_miss) {
-      assert(nintersect < n0);
+      assert(nintersect < *n);
       intersections[nintersect++] = r0;
     }
     T const r1 = intersect(ray, LineSegment2<T>(v1, v2));
     if (r1 < r_miss) {
-      assert(nintersect < n0);
+      assert(nintersect < *n);
       intersections[nintersect++] = r1;
     }
     if (nverts == 3) {
       T const r2 = intersect(ray, LineSegment2<T>(v2, v0));
       if (r2 < r_miss) {
-        assert(nintersect < n0);
+        assert(nintersect < *n);
         intersections[nintersect++] = r2;
       }
     } else { // nverts == 4
       auto const & v3 = mesh.vertices[mesh.fv[offset0 + 3]];
       T const r2 = intersect(ray, LineSegment2<T>(v2, v3));
       if (r2 < r_miss) {
-        assert(nintersect < n0);
+        assert(nintersect < *n);
         intersections[nintersect++] = r2;
       }
       T const r3 = intersect(ray, LineSegment2<T>(v3, v0));
       if (r3 < r_miss) {
-        assert(nintersect < n0);
+        assert(nintersect < *n);
         intersections[nintersect++] = r3;
       }
     }
