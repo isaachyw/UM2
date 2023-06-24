@@ -51,8 +51,8 @@ UM2_PURE UM2_HOSTDEV constexpr auto AABox<D, T>::zmax() const noexcept -> T
 
 template <len_t D, typename T>
 UM2_HOSTDEV constexpr AABox<D, T>::AABox(Point<D, T> const & min, Point<D, T> const & max)
-    : minima{min},
-      maxima{max}
+    : minima(min),
+      maxima(max)
 {
   for (len_t i = 0; i < D; ++i) {
     assert(minima[i] <= maxima[i]);
