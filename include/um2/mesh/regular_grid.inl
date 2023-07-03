@@ -30,44 +30,44 @@ UM2_HOSTDEV constexpr RegularGrid<D, T>::RegularGrid(AABox<D, T> const box)
 
 // Minima accessors.
 template <len_t D, typename T>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto xMin(RegularGrid<D, T> const & grid) -> T
+requires(D >= 1) UM2_PURE UM2_HOSTDEV constexpr auto xMin(RegularGrid<D, T> const & grid)
+    -> T
 {
   return grid.minima[0];
 }
 
 template <len_t D, typename T>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto yMin(RegularGrid<D, T> const & grid) -> T
+requires(D >= 2) UM2_PURE UM2_HOSTDEV constexpr auto yMin(RegularGrid<D, T> const & grid)
+    -> T
 {
   return grid.minima[1];
 }
 
 template <len_t D, typename T>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto zMin(RegularGrid<D, T> const & grid) -> T
+requires(D >= 3) UM2_PURE UM2_HOSTDEV constexpr auto zMin(RegularGrid<D, T> const & grid)
+    -> T
 {
   return grid.minima[2];
 }
 
 // Number of divisions accessors.
 template <len_t D, typename T>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto numXcells(RegularGrid<D, T> const & grid) -> len_t
+requires(D >= 1) UM2_PURE UM2_HOSTDEV
+    constexpr auto numXcells(RegularGrid<D, T> const & grid) -> len_t
 {
   return grid.num_cells[0];
 }
 
 template <len_t D, typename T>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto numYcells(RegularGrid<D, T> const & grid) -> len_t
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto numYcells(RegularGrid<D, T> const & grid) -> len_t
 {
   return grid.num_cells[1];
 }
 
 template <len_t D, typename T>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto numZcells(RegularGrid<D, T> const & grid) -> len_t
+requires(D >= 3) UM2_PURE UM2_HOSTDEV
+    constexpr auto numZcells(RegularGrid<D, T> const & grid) -> len_t
 {
   return grid.num_cells[2];
 }
@@ -81,44 +81,44 @@ UM2_PURE UM2_HOSTDEV constexpr auto numCells(RegularGrid<D, T> const & grid)
 
 // Width/hight/depth
 template <len_t D, typename T>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto width(RegularGrid<D, T> const & grid) -> T
+requires(D >= 1) UM2_PURE UM2_HOSTDEV constexpr auto width(RegularGrid<D, T> const & grid)
+    -> T
 {
   return grid.spacing[0] * static_cast<T>(numXcells(grid));
 }
 
 template <len_t D, typename T>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto height(RegularGrid<D, T> const & grid) -> T
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto height(RegularGrid<D, T> const & grid) -> T
 {
   return grid.spacing[1] * static_cast<T>(numYcells(grid));
 }
 
 template <len_t D, typename T>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto depth(RegularGrid<D, T> const & grid) -> T
+requires(D >= 3) UM2_PURE UM2_HOSTDEV constexpr auto depth(RegularGrid<D, T> const & grid)
+    -> T
 {
   return grid.spacing[2] * static_cast<T>(numZcells(grid));
 }
 
 // Maxima accessors.
 template <len_t D, typename T>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto xMax(RegularGrid<D, T> const & grid) -> T
+requires(D >= 1) UM2_PURE UM2_HOSTDEV constexpr auto xMax(RegularGrid<D, T> const & grid)
+    -> T
 {
   return xMin(grid) + width(grid);
 }
 
 template <len_t D, typename T>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto yMax(RegularGrid<D, T> const & grid) -> T
+requires(D >= 2) UM2_PURE UM2_HOSTDEV constexpr auto yMax(RegularGrid<D, T> const & grid)
+    -> T
 {
   return yMin(grid) + height(grid);
 }
 
 template <len_t D, typename T>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto zMax(RegularGrid<D, T> const & grid) -> T
+requires(D >= 3) UM2_PURE UM2_HOSTDEV constexpr auto zMax(RegularGrid<D, T> const & grid)
+    -> T
 {
   return zMin(grid) + depth(grid);
 }
@@ -144,7 +144,7 @@ template <len_t D, typename T>
 UM2_NDEBUG_PURE UM2_HOSTDEV constexpr auto RegularGrid<D, T>::getBox(len_t const i,
                                                                      len_t const j) const
     -> AABox2<T>
-  requires(D == 2)
+requires(D == 2)
 {
   assert(i < numXcells(*this));
   assert(j < numYcells(*this));

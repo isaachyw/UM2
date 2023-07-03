@@ -3,8 +3,8 @@ namespace um2
 
 template <len_t D, typename T, typename P>
 template <len_t N, typename I>
-constexpr void RegularPartition<D, T, P>::setChild(FaceVertexMesh<D, N, T, I> & mesh)
-  requires(D == 2)
+constexpr void
+RegularPartition<D, T, P>::setChild(FaceVertexMesh<D, N, T, I> & mesh) requires(D == 2)
 {
   for (auto i = 0; i < numFaces(mesh); i++) {
     //    get the bounding box of face i
@@ -29,68 +29,65 @@ constexpr void RegularPartition<D, T, P>::setChild(FaceVertexMesh<D, N, T, I> & 
 
 // Minima/maxima accessors.
 template <len_t D, typename T, typename P>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto xMin(RegularPartition<D, T, P> const & part) -> T
+requires(D >= 1) UM2_PURE UM2_HOSTDEV
+    constexpr auto xMin(RegularPartition<D, T, P> const & part) -> T
 {
   return xMin(part.grid);
 }
 
 template <len_t D, typename T, typename P>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto yMin(RegularPartition<D, T, P> const & part) -> T
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto yMin(RegularPartition<D, T, P> const & part) -> T
 {
   return yMin(part.grid);
 }
 
 template <len_t D, typename T, typename P>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto zMin(RegularPartition<D, T, P> const & part) -> T
+requires(D >= 3) UM2_PURE UM2_HOSTDEV
+    constexpr auto zMin(RegularPartition<D, T, P> const & part) -> T
 {
   return zMin(part.grid);
 }
 
 template <len_t D, typename T, typename P>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto xMax(RegularPartition<D, T, P> const & part) -> T
+requires(D >= 1) UM2_PURE UM2_HOSTDEV
+    constexpr auto xMax(RegularPartition<D, T, P> const & part) -> T
 {
   return xMax(part.grid);
 }
 
 template <len_t D, typename T, typename P>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto yMax(RegularPartition<D, T, P> const & part) -> T
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto yMax(RegularPartition<D, T, P> const & part) -> T
 {
   return yMax(part.grid);
 }
 
 template <len_t D, typename T, typename P>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto zMax(RegularPartition<D, T, P> const & part) -> T
+requires(D >= 3) UM2_PURE UM2_HOSTDEV
+    constexpr auto zMax(RegularPartition<D, T, P> const & part) -> T
 {
   return zMax(part.grid);
 }
 
 // Number of divisions accessors.
 template <len_t D, typename T, typename P>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto numXcells(RegularPartition<D, T, P> const & part)
-    -> len_t
+requires(D >= 1) UM2_PURE UM2_HOSTDEV
+    constexpr auto numXcells(RegularPartition<D, T, P> const & part) -> len_t
 {
   return numXcells(part.grid);
 }
 
 template <len_t D, typename T, typename P>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto numYcells(RegularPartition<D, T, P> const & part)
-    -> len_t
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto numYcells(RegularPartition<D, T, P> const & part) -> len_t
 {
   return numYcells(part.grid);
 }
 
 template <len_t D, typename T, typename P>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto numZcells(RegularPartition<D, T, P> const & part)
-    -> len_t
+requires(D >= 3) UM2_PURE UM2_HOSTDEV
+    constexpr auto numZcells(RegularPartition<D, T, P> const & part) -> len_t
 {
   return numZcells(part.grid);
 }
@@ -104,22 +101,22 @@ UM2_PURE UM2_HOSTDEV constexpr auto numCells(RegularPartition<D, T, P> const & p
 
 // Width/hight/depth
 template <len_t D, typename T, typename P>
-  requires(D >= 1)
-UM2_PURE UM2_HOSTDEV constexpr auto width(RegularPartition<D, T, P> const & part) -> T
+requires(D >= 1) UM2_PURE UM2_HOSTDEV
+    constexpr auto width(RegularPartition<D, T, P> const & part) -> T
 {
   return width(part.grid);
 }
 
 template <len_t D, typename T, typename P>
-  requires(D >= 2)
-UM2_PURE UM2_HOSTDEV constexpr auto height(RegularPartition<D, T, P> const & part) -> T
+requires(D >= 2) UM2_PURE UM2_HOSTDEV
+    constexpr auto height(RegularPartition<D, T, P> const & part) -> T
 {
   return height(part.grid);
 }
 
 template <len_t D, typename T, typename P>
-  requires(D >= 3)
-UM2_PURE UM2_HOSTDEV constexpr auto depth(RegularPartition<D, T, P> const & part) -> T
+requires(D >= 3) UM2_PURE UM2_HOSTDEV
+    constexpr auto depth(RegularPartition<D, T, P> const & part) -> T
 {
   return depth(part.grid);
 }
@@ -135,24 +132,20 @@ UM2_PURE UM2_HOSTDEV constexpr auto boundingBox(RegularPartition<D, T, P> const 
 template <len_t D, typename T, typename P>
 UM2_NDEBUG_PURE UM2_HOSTDEV constexpr auto
 RegularPartition<D, T, P>::getBox(len_t const i, len_t const j) const -> AABox2<T>
-  requires(D == 2)
-{
-  return this->grid.getBox(i, j);
-}
+requires(D == 2) { return this->grid.getBox(i, j); }
 
 template <len_t D, typename T, typename P>
 UM2_NDEBUG_PURE UM2_HOSTDEV constexpr auto
 RegularPartition<D, T, P>::getChild(len_t const i, len_t const j) ->
-    typename P::ValueType &
-  requires(D == 2)
+    typename P::ValueType & requires(D == 2)
 {
   return this->children[j * numXcells(this->grid) + i];
 }
 
 template <len_t D, typename T, typename P>
 UM2_NDEBUG_PURE UM2_HOSTDEV constexpr auto
-RegularPartition<D, T, P>::getChild(len_t const i, len_t const j) const -> P const &
-  requires(D == 2)
+RegularPartition<D, T, P>::getChild(len_t const i, len_t const j) const
+    -> P const & requires(D == 2)
 {
   return this->children[j * num_xcells(this->grid) + i];
 }
