@@ -47,6 +47,18 @@ UM2_HOSTDEV TEST_CASE(constructor)
 }
 
 template <len_t D, typename T>
+UM2_HOSTDEV TEST_CASE(getRangeInGrid)
+{
+  um2::RegularGrid<2, T> grid = makeGrid<2, T>();
+  um2::AABox<2, T> box{
+      um2::Point<2, T>{5.75, 4.5},
+      um2::Point<2, T>{6.75, 6.1},
+  };
+  um2::Vec<4, len_t> range = grid.get_range_in_grid(box);
+  EXPECT_TRUE(range[0] != 0);
+}
+
+template <len_t D, typename T>
 UM2_HOSTDEV TEST_CASE(accessors)
 {
   um2::RegularGrid<D, T> grid = makeGrid<D, T>();
@@ -181,6 +193,7 @@ TEST_SUITE(regular_grid)
   TEST_HOSTDEV((bounding_box<D, T>));
   if constexpr (D == 2) {
     TEST_HOSTDEV((getBox<T>));
+    TEST_HOSTDEV((getRangeInGrid<D, T>));
   }
 }
 
