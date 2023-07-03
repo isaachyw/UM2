@@ -15,15 +15,6 @@ namespace um2
 template <len_t D, typename T, typename P> // requires P is the same type as Vec<NFID,I>
 
 struct RegularPartition {
-  using I = typename std::decay<decltype(std::declval<P>().I)>::type;
-  //  struct Child {
-  //    P id;
-  //    Vec<8, P> faces;
-  //    explicit Child(P id_in)
-  //        : id(id_in)
-  //    {
-  //    }
-  //  };
   P children;
   RegularGrid<D, T> grid;
   // Suppose the grid has nx cells in the x direction and ny cells in the y
@@ -53,8 +44,8 @@ struct RegularPartition {
       -> AABox2<T>
     requires(D == 2);
 
-  UM2_NDEBUG_PURE UM2_HOSTDEV [[nodiscard]] constexpr auto getChild(len_t i, len_t j)
-      -> P &
+  UM2_NDEBUG_PURE UM2_HOSTDEV [[nodiscard]] constexpr auto getChild(len_t i, len_t j) ->
+      typename P::ValueType &
     requires(D == 2);
 
   UM2_NDEBUG_PURE UM2_HOSTDEV [[nodiscard]] constexpr auto getChild(len_t i,
@@ -62,8 +53,9 @@ struct RegularPartition {
       -> P const &
     requires(D == 2);
 
-  template <len_t N>
-  UM2_NDEBUG_PURE UM2_HOSTDEV constexpr void setChild(um2::FaceVertexMesh<D, N, T, I> &)
+  template <len_t N, typename I>
+  UM2_NDEBUG_PURE UM2_HOSTDEV constexpr void
+  setChild(um2::FaceVertexMesh<D, N, T, I> & /*mesh*/)
     requires(D == 2);
 };
 

@@ -23,14 +23,13 @@ UM2_HOSTDEV static constexpr auto makePart() -> um2::RegularPartition<D, T, P>
   }
   um2::RegularPartition<D, T, P> part;
   part.grid = grid;
-  //  if constexpr (D >= 1) {
-  //    part.children = {typename um2::RegularPartition<D, T, P>::Child(1)};
-  //  } else if constexpr (D >= 2) {
-  //
-  //    part.children = {1, 2};
-  //  } else if constexpr (D >= 3) {
-  //    part.children = {1, 2, 3, 4, 5, 6};
-  //  }
+  if constexpr (D == 1) {
+    part.children = {1};
+  } else if constexpr (D == 2) {
+    part.children = {1, 2};
+  } else if constexpr (D >= 3) {
+    part.children = {1, 2, 3, 4, 5, 6};
+  }
   return part;
 }
 
@@ -107,7 +106,7 @@ UM2_HOSTDEV TEST_CASE(get_box_and_child)
   part.grid = grid;
   part.children.resize(32);
   for (len_t i = 0; i < 32; ++i) {
-    part.children[i] = static_cast<P>(i);
+    part.children[i] = static_cast<typename P::ValueType>(i);
   }
   um2::AABox2<T> box = part.getBox(0, 0);
   um2::AABox2<T> box_ref = {
@@ -151,7 +150,7 @@ UM2_HOSTDEV TEST_CASE(get_box_and_child)
   };
   EXPECT_TRUE(isApprox(box, box_ref));
 
-  P child = part.getChild(0, 0);
+  auto child = part.getChild(0, 0);
   EXPECT_EQ(child, 0);
   child = part.getChild(1, 0);
   EXPECT_EQ(child, 1);
@@ -165,26 +164,26 @@ UM2_HOSTDEV TEST_CASE(get_box_and_child)
   EXPECT_EQ(child, 31);
 }
 
-template <std::floating_point T, std::integral I, len_t NFID>
-TEST_CASE(tri_mesh)
-{
-  // Create TriMesh (from helper file)
-  // TriMesh<T, I> mesh = ....
-
-  // Create grid
-  using Child = Vec<NFID, I>;
-  RegularPartition<2, T, Child> grid;
-
-  // Test accessors (maybe? Should all work.)
-
-  // Test new function
-  // grid.binFaces(mesh)
-
-  // assertions? What to test?
-  grid.get_child(0, 0)[0] == 0;
-  grid.get_child(0, 0)[1] == 1;
-  // Test that all the rest are -1
-}
+// template <std::floating_point T, std::integral I, len_t NFID>
+// TEST_CASE(tri_mesh)
+//{
+//   // Create TriMesh (from helper file)
+//   // TriMesh<T, I> mesh = ....
+//
+//   // Create grid
+//   using Child = Vec<NFID, I>;
+//   RegularPartition<2, T, Child> grid;
+//
+//   // Test accessors (maybe? Should all work.)
+//
+//   // Test new function
+//   // grid.binFaces(mesh)
+//
+//   // assertions? What to test?
+//   grid.get_child(0, 0)[0] == 0;
+//   grid.get_child(0, 0)[1] == 1;
+//   // Test that all the rest are -1
+// }
 #if UM2_ENABLE_CUDA
 template <len_t D, typename T, typename P>
 MAKE_CUDA_KERNEL(accessors, D, T, P)
@@ -209,11 +208,11 @@ TEST_SUITE(regular_partition)
 
 auto main() -> int
 {
-  RUN_TESTS((regular_partition<1, float, int32_t>));
-  RUN_TESTS((regular_partition<2, float, int32_t>));
-  RUN_TESTS((regular_partition<3, float, int32_t>));
-  RUN_TESTS((regular_partition<1, double, uint64_t>));
-  RUN_TESTS((regular_partition<2, double, uint64_t>));
-  RUN_TESTS((regular_partition<3, double, uint64_t>));
+  RUN_TESTS((regular_partition<1, float, um2::Vector<int32_t>>));
+  RUN_TESTS((regular_partition<2, float, um2::Vector<int32_t>>));
+  RUN_TESTS((regular_partition<3, float, um2::Vector<int32_t>>));
+  RUN_TESTS((regular_partition<1, double, um2::Vector<uint64_t>>));
+  RUN_TESTS((regular_partition<2, double, um2::Vector<uint64_t>>));
+  RUN_TESTS((regular_partition<3, double, um2::Vector<uint64_t>>));
   return 0;
 }

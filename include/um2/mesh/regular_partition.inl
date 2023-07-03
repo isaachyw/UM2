@@ -2,7 +2,7 @@ namespace um2
 {
 
 template <len_t D, typename T, typename P>
-template <len_t N>
+template <len_t N, typename I>
 constexpr void RegularPartition<D, T, P>::setChild(FaceVertexMesh<D, N, T, I> & mesh)
   requires(D == 2)
 {
@@ -12,17 +12,16 @@ constexpr void RegularPartition<D, T, P>::setChild(FaceVertexMesh<D, N, T, I> & 
     AABox<2, T> box = boundingBox(face);
     Vector<T> range = this->grid.get_range_in_grid(box);
     if (range[0] >= 0) { // do have overlap with grid
-      len_t i_min = static_cast<len_t>(range[0]);
-      len_t i_max = static_cast<len_t>(range[1]);
-      len_t j_min = static_cast<len_t>(range[2]);
-      len_t j_max = static_cast<len_t>(range[3]);
+      auto i_min = static_cast<len_t>(range[0]);
+      auto i_max = static_cast<len_t>(range[1]);
+      auto j_min = static_cast<len_t>(range[2]);
+      auto j_max = static_cast<len_t>(range[3]);
       for (auto x_i = i_min; x_i <= i_max; x_i++) {
         for (auto j = j_min; j <= j_max; j++) {
           this->getChild(i, j).push_back(i);
         }
       }
     }
-    //    set num of face id
   }
 }
 
@@ -143,7 +142,8 @@ RegularPartition<D, T, P>::getBox(len_t const i, len_t const j) const -> AABox2<
 
 template <len_t D, typename T, typename P>
 UM2_NDEBUG_PURE UM2_HOSTDEV constexpr auto
-RegularPartition<D, T, P>::getChild(len_t const i, len_t const j) -> P &
+RegularPartition<D, T, P>::getChild(len_t const i, len_t const j) ->
+    typename P::ValueType &
   requires(D == 2)
 {
   return this->children[j * numXcells(this->grid) + i];
