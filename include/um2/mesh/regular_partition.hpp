@@ -52,8 +52,7 @@ struct RegularPartition {
       -> P const & requires(D == 2);
 
   template <len_t N, typename I>
-  UM2_NDEBUG_PURE UM2_HOSTDEV void
-  set_child(um2::FaceVertexMesh<1, N, T, I> const & /*mesh*/) requires(D == 2);
+  UM2_HOSTDEV void set_child(um2::FaceVertexMesh<1, N, T, I> const & /*mesh*/);
 };
 
 // -- Aliases --

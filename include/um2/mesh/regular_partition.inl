@@ -3,8 +3,7 @@ namespace um2
 
 template <len_t D, typename T, typename P>
 template <len_t N, typename I>
-void RegularPartition<D, T, P>::set_child(
-    um2::FaceVertexMesh<1, N, T, I> const & mesh) requires(D == 2)
+void RegularPartition<D, T, P>::set_child(um2::FaceVertexMesh<1, N, T, I> const & mesh)
 {
   static_assert(std::same_as<I, typename P::Scalar>);
   for (auto id = 0; id < numFaces(mesh); id++) {
