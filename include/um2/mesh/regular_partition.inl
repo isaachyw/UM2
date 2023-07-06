@@ -2,9 +2,11 @@ namespace um2
 {
 
 template <len_t D, typename T, typename P>
-void RegularPartition<D, T, P>::set_child(um2::TriMesh<T, int32_t> const & mesh) requires(
-    D == 2)
+template <len_t N, typename I>
+void RegularPartition<D, T, P>::set_child(
+    um2::FaceVertexMesh<1, N, T, I> const & mesh) requires(D == 2)
 {
+  static_assert(std::same_as<I, typename P::Scalar>);
   for (auto id = 0; id < numFaces(mesh); id++) {
     //    get the bounding box of face i
     Vector<Point2<T>> face = getFace(mesh, id);

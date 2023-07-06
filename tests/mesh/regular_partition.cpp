@@ -193,14 +193,41 @@ UM2_HOSTDEV TEST_CASE(get_box_and_child)
 }
 
 template <std::floating_point T, std::integral I, len_t NFID>
+TEST_CASE(quad_mesh_children)
+{
+
+  um2::QuadMesh<T, I> ref_mesh;
+  makeQuadReferenceMesh(ref_mesh);
+  EXPECT_TRUE(!ref_mesh.vertices.empty())
+  using Child = um2::Vec<NFID, I>;
+  um2::RegularPartition<2, T, Child> part = makePartEmpty<2, T, Child>();
+  len_t const cell_nums = numCells(part.grid)[0] * numCells(part.grid)[1];
+  part.children.resize(cell_nums);
+  for (auto i = 0; i < cell_nums; ++i) {
+    part.children[i].setConstant(-1);
+  }
+  EXPECT_TRUE(part.children.size() == cell_nums);
+  part.set_child(ref_mesh);
+  Eigen::Matrix<I, 4, NFID> const ref_children{
+      {0, -1, -1, -1, -1, -1, -1, -1},
+      {0,  1, -1, -1, -1, -1, -1, -1},
+      {0, -1, -1, -1, -1, -1, -1, -1},
+      {0,  1, -1, -1, -1, -1, -1, -1}
+  };
+  for (auto j = 0; j < cell_nums; j++) {
+    for (auto i = 0; i < 8; i++) {
+      EXPECT_EQ(part.children[j][i], ref_children(j, i));
+    }
+  }
+}
+
+template <std::floating_point T, std::integral I, len_t NFID>
 TEST_CASE(tri_mesh_children)
 {
 
   um2::TriMesh<T, I> ref_mesh;
   makeTriReferenceMesh(ref_mesh);
   EXPECT_TRUE(!ref_mesh.vertices.empty());
-
-  // Create grid
   using Child = um2::Vec<NFID, I>;
   um2::RegularPartition<2, T, Child> part = makePartEmpty<2, T, Child>();
   len_t cell_nums = numCells(part.grid)[0] * numCells(part.grid)[1];
@@ -208,9 +235,6 @@ TEST_CASE(tri_mesh_children)
   for (auto i = 0; i < cell_nums; ++i) {
     part.children[i].setConstant(-1);
   }
-  // Test accessors (maybe? Should all work.)
-  // Test new function
-  // grid.binFaces(mesh)
   EXPECT_TRUE(part.children.size() == cell_nums);
   part.set_child(ref_mesh);
   for (auto j = 0; j < cell_nums; j++) {
@@ -248,12 +272,15 @@ TEST_SUITE(regular_partition)
 template <typename T, typename I>
 TEST_SUITE(partition_children)
 {
-  TEST_HOSTDEV((tri_mesh_children<T, I, 8>));
+  TEST_HOSTDEV((tri_mesh_children<T, I, 8>))
+  TEST_HOSTDEV((tri_mesh_children<T, I, 16>))
+  TEST_HOSTDEV((quad_mesh_children<T, I, 8>))
 }
 
 auto main() -> int
 {
   RUN_TESTS((partition_children<float, int32_t>));
+  RUN_TESTS((partition_children<double, int64_t>));
   RUN_TESTS((regular_partition<1, float, int32_t>));
   RUN_TESTS((regular_partition<2, float, int32_t>));
   RUN_TESTS((regular_partition<3, float, int32_t>));

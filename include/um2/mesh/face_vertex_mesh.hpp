@@ -131,16 +131,15 @@ template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
 UM2_NDEBUG_PURE auto getFace(FaceVertexMesh<P, N, T, I> const & mesh, len_t id)
     -> Vector<Point2<T>>
 {
-  len_t num_faces = numFaces(mesh);
-  assert(id < num_faces);
   Vector<Point2<T>> vertices;
   if (!mesh.fv_offsets.empty()) {
     for (auto i = mesh.fv_offsets[id]; i < mesh.fv_offsets[id + 1]; ++i) {
-      vertices.push_back(mesh.vertices[mesh.fv[i]]);
+      vertices.push_back(
+          mesh.vertices[static_cast<len_t>(mesh.fv[static_cast<len_t>(i)])]);
     }
   } else {
     for (auto i = id * N; i < (id + 1) * N; ++i) {
-      vertices.push_back(mesh.vertices[mesh.fv[i]]);
+      vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i])]);
     }
   }
   return vertices;
