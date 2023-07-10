@@ -56,6 +56,7 @@ set(UM2_HEADERS
         "include/um2/geometry/triangle.hpp"
         ${MESH_HEADERS}
         ${RAY_CASTING_HEADERS}
+        "include/um2/visualization/image.hpp"# todo : delete it when push
         "include/um2c.h")
 
 # Sources
@@ -67,10 +68,12 @@ set(UM2_SOURCES
 # Visualization headers and sources
 if (UM2_ENABLE_VIS)
     list(APPEND UM2_HEADERS
+            "include/um2/visualization/image.hpp"
             "include/um2/visualization/shader.hpp"
             "include/um2/visualization/vertex_buffer.hpp"
             "include/um2/visualization/vertex_array.hpp"
-            "include/um2/visualization/element_buffer.hpp")
+            "include/um2/visualization/element_buffer.hpp"
+            )
     list(APPEND UM2_SOURCES
             "src/visualization/shader.cpp")
 endif ()

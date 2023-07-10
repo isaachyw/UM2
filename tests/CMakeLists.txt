@@ -30,6 +30,9 @@ add_um2_test(face_vertex_mesh ./mesh/face_vertex_mesh.cpp)
 add_um2_test(regular_grid ./mesh/regular_grid.cpp)
 add_um2_test(regular_partition ./mesh/regular_partition.cpp)
 
+# visualization
+add_um2_test(image ./visualization/image.cpp)
+
 if (UM2_ENABLE_VIS)
     add_um2_test(shader ./visualization/shader.cpp)
 endif ()
