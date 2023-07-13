@@ -247,6 +247,34 @@ TEST_CASE(tri_mesh_children)
     }
   }
 }
+
+template <std::floating_point T, std::integral I, len_t NFID>
+TEST_CASE(tri_mesh_children_boundary)
+{
+
+  um2::TriMesh<T, I> ref_mesh;
+  makeTriReferenceMesh(ref_mesh);
+  EXPECT_TRUE(!ref_mesh.vertices.empty());
+  using Child = um2::Vec<NFID, I>;
+  um2::RegularGrid<2, T> grid;
+  grid.minima[0] = 0;
+  grid.minima[1] = 0;
+  grid.spacing[0] = 0.5;
+  grid.spacing[1] = 0.5;
+  grid.num_cells[0] = 2;
+  grid.num_cells[1] = 2;
+  um2::RegularPartition<2, T, Child> part;
+  part.grid = grid;
+  len_t cell_nums = numCells(part.grid)[0] * numCells(part.grid)[1];
+  part.children.resize(cell_nums);
+  for (auto i = 0; i < cell_nums; ++i) {
+    part.children[i].setConstant(-1);
+  }
+  EXPECT_TRUE(part.children.size() == cell_nums);
+  part.set_child(ref_mesh);
+  // test the children as expected
+}
+
 #if UM2_ENABLE_CUDA
 template <len_t D, typename T, typename P>
 MAKE_CUDA_KERNEL(accessors, D, T, P)
@@ -275,6 +303,7 @@ TEST_SUITE(partition_children)
   TEST_HOSTDEV((tri_mesh_children<T, I, 8>))
   TEST_HOSTDEV((tri_mesh_children<T, I, 16>))
   TEST_HOSTDEV((quad_mesh_children<T, I, 8>))
+  TEST_HOSTDEV((tri_mesh_children_boundary<T, I, 16>))
 }
 
 auto main() -> int

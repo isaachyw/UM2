@@ -1,6 +1,7 @@
 #include "../test_framework.hpp"
-#include <iostream>
 #include <um2/visualization/image.hpp>
+
+#include "../mesh/helpers/setup_mesh.hpp"
 UM2_HOSTDEV TEST_CASE(image_default_constructor)
 {
   um2::Image image(10, 8);
@@ -10,10 +11,28 @@ UM2_HOSTDEV TEST_CASE(image_default_constructor)
   image.to_ppm(um2::String("image_default_constructor.ppm"));
 }
 
-TEST_SUITE(image_default_constructor) { TEST(image_default_constructor); }
+template <std::floating_point T, std::integral I>
+UM2_HOSTDEV TEST_CASE(render_mesh)
+{
+  // make mesh
+  um2::TriMesh<T, I> mesh;
+  makeTriReferenceMesh(mesh);
+  EXPECT_TRUE(!mesh.vertices.empty());
+  // render mesh
+  um2::Image const image(mesh);
+  // save to file
+  image.to_ppm(um2::String("render_mesh.ppm"));
+}
+
+template <typename T, typename I>
+TEST_SUITE(image_test)
+{
+  TEST_HOSTDEV((image_default_constructor));
+  TEST_HOSTDEV((render_mesh<T, I>));
+}
 
 auto main() -> int
 {
-  RUN_TESTS(image_default_constructor);
+  RUN_TESTS((image_test<double, int32_t>));
   return 0;
 }

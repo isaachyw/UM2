@@ -22,6 +22,14 @@ struct Polytope<2, 1, 3, D, T> {
 
   Point<D, T> vertices[3];
 
+  Polytope() = default;
+
+  Polytope(Point<D, T> const & v0, Point<D, T> const & v1, Point<D, T> const & v2)
+  {
+    vertices[0] = v0;
+    vertices[1] = v1;
+    vertices[2] = v2;
+  }
   // -----------------------------------------------------------------------------
   // Accessors
   // -----------------------------------------------------------------------------

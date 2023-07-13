@@ -26,7 +26,7 @@ void RegularPartition<D, T, P>::set_child(um2::FaceVertexMesh<1, N, T, I> const 
           } else {
             assert(false);
           }
-        } // todo: check if out of range
+        } // todo: check if out of range of the NFID size
       }
     }
   }
