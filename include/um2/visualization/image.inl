@@ -1,5 +1,5 @@
 #include <fstream>
-// #include <iostream>
+#include <iostream>
 #include <um2/geometry/polytope.hpp>
 #include <um2/geometry/triangle.hpp>
 #include <um2/mesh/regular_partition.hpp>
@@ -46,6 +46,7 @@ constexpr auto Image::getPixel(len_t i, len_t j) const noexcept -> Color
 template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
 Image::Image(const FaceVertexMesh<P, N, T, I> & mesh) noexcept
 {
+  int64_t counter = 0;
   len_t grid_size = 4;
   AABox2<T> const & bbox = boundingBox(mesh);
   T width = bbox.width();
@@ -63,7 +64,6 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh) noexcept
     partition.children[i].setConstant(-1);
   }
   partition.set_child(mesh);
-  // iterate over the pixels
   for (len_t i_grid = 0; i_grid < grid_size; i_grid++) {
     for (len_t j_grid = 0; j_grid < grid_size; j_grid++) {
       len_t i_min = i_grid * ny / grid_size;
@@ -71,21 +71,34 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh) noexcept
       len_t j_min = j_grid * nx / grid_size;
       len_t j_max = (j_grid + 1) * nx / grid_size;
       Vec<8, I> face_indices = partition.getChild(i_grid, j_grid);
+      len_t last_face = -1;
       for (len_t i = i_min; i < i_max; i++) {
         for (len_t j = j_min; j < j_max; j++) {
+          // first test if it is in the last face
+          if (last_face != -1) {
+            auto face = getFace(mesh, face_indices[last_face]);
+            if (face.size() == 3) {
+              Triangle<2, T> tri(face[0], face[1], face[2]);
+              if (tri.contains(Vec<2, T>(bbox.minima[0] + j * width / nx,
+                                         bbox.minima[1] + i * height / ny))) {
+                this->buffer[i * nx + j] = prop_cycle[last_face % prop_cycle.size()];
+                counter++;
+                continue;
+              }
+            }
+          }
           for (len_t f_id = 0; f_id < face_indices.size(); f_id++) {
             if (face_indices[f_id] == -1) {
               continue;
             }
             auto face = getFace(mesh, face_indices[f_id]);
-            //            std::cout << bbox.minima[0] + j * width / nx << ","
-            //                      << bbox.minima[1] + i * height / ny << std::endl;
-            // only support triangle or quad
             if (face.size() == 3) {
               Triangle<2, T> tri(face[0], face[1], face[2]);
               if (tri.contains(Vec<2, T>(bbox.minima[0] + j * width / nx,
                                          bbox.minima[1] + i * height / ny))) {
                 this->buffer[i * nx + j] = prop_cycle[f_id % prop_cycle.size()];
+                last_face = f_id;
+                break; // break out of the face loop
               }
             }
           }
@@ -94,5 +107,6 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh) noexcept
     }
   }
   // NOLINTEND
+  std::cout << "counter: " << counter << std::endl;
 }
 } // namespace um2
