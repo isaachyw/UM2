@@ -8,7 +8,7 @@ namespace um2
 {
 struct Image {
   static const Vector<Color> prop_cycle;
-  static constexpr len_t pixel_density = 270;
+  static constexpr len_t pixel_density = 256;
   len_t nx, ny;
   Vector<Color> buffer;
 
@@ -20,7 +20,10 @@ struct Image {
   UM2_HOSTDEV void to_ppm(String const & filename) const noexcept;
 
   template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
-  UM2_HOSTDEV explicit Image(um2::FaceVertexMesh<P, N, T, I> const & mesh) noexcept;
+  UM2_HOSTDEV explicit Image(um2::FaceVertexMesh<P, N, T, I> const & mesh,
+                             um2::Color edge_color = Color(0, 255, 0),
+                             um2::Color vertex_color = Color(255, 0, 0),
+                             T vertex_radius = 0.02) noexcept;
 };
 
 } // namespace um2

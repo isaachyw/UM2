@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <um2/geometry/polytope.hpp>
+#include <um2/geometry/quadrilateral.hpp>
 #include <um2/geometry/triangle.hpp>
 #include <um2/mesh/regular_partition.hpp>
 
@@ -44,10 +45,10 @@ constexpr auto Image::getPixel(len_t i, len_t j) const noexcept -> Color
 
 // NOLINTBEGIN
 template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
-Image::Image(const FaceVertexMesh<P, N, T, I> & mesh) noexcept
+Image::Image(const FaceVertexMesh<P, N, T, I> & mesh, um2::Color edge_color,
+             um2::Color vertex_color, T vertex_radius) noexcept
 {
-  int64_t counter = 0;
-  len_t grid_size = 4;
+  len_t grid_size = 2;
   AABox2<T> const & bbox = boundingBox(mesh);
   T width = bbox.width();
   T height = bbox.height();
@@ -56,7 +57,7 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh) noexcept
   this->buffer.resize(nx * ny);
   // set the regular partition children
   RegularPartition<2, T, Vec<8, I>> partition;
-  //  try 4 by 4 grid
+  //  try 4 by 4 grid, todo: benchmark different granularity of the grid
   partition.grid = RegularGrid<2, T>(bbox.minima, {width / grid_size, height / grid_size},
                                      {grid_size, grid_size});
   partition.children.resize(grid_size * grid_size);
@@ -64,25 +65,41 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh) noexcept
     partition.children[i].setConstant(-1);
   }
   partition.set_child(mesh);
+  for (auto const & child : partition.children) {
+    for (auto i = 0; i < 8; i++) {
+      std::cout << child[i] << " ";
+    }
+    std::cout << std::endl;
+  }
+#pragma omp parallel for
   for (len_t i_grid = 0; i_grid < grid_size; i_grid++) {
     for (len_t j_grid = 0; j_grid < grid_size; j_grid++) {
       len_t i_min = i_grid * ny / grid_size;
       len_t i_max = (i_grid + 1) * ny / grid_size;
       len_t j_min = j_grid * nx / grid_size;
       len_t j_max = (j_grid + 1) * nx / grid_size;
-      Vec<8, I> face_indices = partition.getChild(i_grid, j_grid);
+      Vec<8, I> face_indices = partition.children[i_grid * grid_size + j_grid];
       len_t last_face = -1;
+      // loop all the pixels in the grid cell
       for (len_t i = i_min; i < i_max; i++) {
         for (len_t j = j_min; j < j_max; j++) {
-          // first test if it is in the last face
+          //           first test if it is in the last face
           if (last_face != -1) {
             auto face = getFace(mesh, face_indices[last_face]);
             if (face.size() == 3) {
               Triangle<2, T> tri(face[0], face[1], face[2]);
               if (tri.contains(Vec<2, T>(bbox.minima[0] + j * width / nx,
                                          bbox.minima[1] + i * height / ny))) {
-                this->buffer[i * nx + j] = prop_cycle[last_face % prop_cycle.size()];
-                counter++;
+                this->buffer[i * nx + j] =
+                    prop_cycle[face_indices[last_face] % prop_cycle.size()];
+                continue;
+              }
+            } else if (face.size() == 4) {
+              Quadrilateral<2, T> quad(face[0], face[1], face[2], face[3]);
+              if (quad.contains(Vec<2, T>(bbox.minima[0] + j * width / nx,
+                                          bbox.minima[1] + i * height / ny))) {
+                this->buffer[i * nx + j] =
+                    prop_cycle[face_indices[last_face] % prop_cycle.size()];
                 continue;
               }
             }
@@ -96,7 +113,17 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh) noexcept
               Triangle<2, T> tri(face[0], face[1], face[2]);
               if (tri.contains(Vec<2, T>(bbox.minima[0] + j * width / nx,
                                          bbox.minima[1] + i * height / ny))) {
-                this->buffer[i * nx + j] = prop_cycle[f_id % prop_cycle.size()];
+                this->buffer[i * nx + j] =
+                    prop_cycle[face_indices[f_id] % prop_cycle.size()];
+                last_face = f_id;
+                break; // break out of the face loop
+              }
+            } else if (face.size() == 4) {
+              Quadrilateral<2, T> quad(face[0], face[1], face[2], face[3]);
+              if (quad.contains(Vec<2, T>(bbox.minima[0] + j * width / nx,
+                                          bbox.minima[1] + i * height / ny))) {
+                this->buffer[i * nx + j] =
+                    prop_cycle[face_indices[f_id] % prop_cycle.size()];
                 last_face = f_id;
                 break; // break out of the face loop
               }
@@ -106,7 +133,66 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh) noexcept
       }
     }
   }
+
+  /***************************************************************************
+   *
+   * render edge, use Bresenham's line algorithm
+   */
+  Vector<Point2<T>> points = getEdge(mesh);
+#pragma omp parallel for
+  for (len_t i = 0; i < numEdges(mesh); i++) {
+    Vec<2, T> p0 = points[2 * i];
+    Vec<2, T> p1 = points[2 * i + 1];
+    len_t x0 =
+        len_t(std::floor(static_cast<double>((p0[0] - bbox.minima[0]) * nx) / width));
+    len_t y0 =
+        len_t(std::floor(static_cast<double>((p0[1] - bbox.minima[1]) * ny) / height));
+    len_t x1 =
+        len_t(std::floor(static_cast<double>((p1[0] - bbox.minima[0]) * nx) / width));
+    len_t y1 =
+        len_t(std::floor(static_cast<double>((p1[1] - bbox.minima[1]) * ny) / height));
+    x0 = x0 == nx ? nx - 1 : x0;
+    y0 = y0 == ny ? ny - 1 : y0;
+    x1 = x1 == nx ? nx - 1 : x1;
+    y1 = y1 == ny ? ny - 1 : y1;
+    len_t dx = std::abs(x1 - x0);
+    len_t dy = std::abs(y1 - y0);
+    len_t sx = (x0 < x1) ? 1 : -1;
+    len_t sy = (y0 < y1) ? 1 : -1;
+    len_t err = dx - dy;
+    while (true) {
+      this->buffer[y0 * nx + x0] = edge_color;
+      if ((x0 == x1) && (y0 == y1)) {
+        break;
+      }
+      len_t e2 = 2 * err;
+      if (e2 > -dy) {
+        err -= dy;
+        x0 += sx;
+      }
+      if (e2 < dx) {
+        err += dx;
+        y0 += sy;
+      }
+    }
+  }
+  // finally render the vertices, use a square, radius = 20
+  len_t radius = static_cast<len_t>(pixel_density * vertex_radius);
+#pragma omp parallel for
+  for (auto idx = 0; idx < mesh.vertices.size(); idx++) {
+    len_t x0 = len_t(std::floor(
+        static_cast<double>((mesh.vertices[idx][0] - bbox.minima[0]) * nx) / width));
+    len_t y0 = len_t(std::floor(
+        static_cast<double>((mesh.vertices[idx][1] - bbox.minima[1]) * ny) / height));
+    for (len_t i = x0 - radius; i < x0 + radius; i++) {
+      for (len_t j = y0 - radius; j < y0 + radius; j++) {
+        if (i >= 0 && i < nx && j >= 0 && j < ny) {
+          this->buffer[j * nx + i] = vertex_color;
+        }
+      }
+    }
+    // render all the pixel in the square surrounding the vertex in the buffer
+  }
   // NOLINTEND
-  std::cout << "counter: " << counter << std::endl;
 }
 } // namespace um2

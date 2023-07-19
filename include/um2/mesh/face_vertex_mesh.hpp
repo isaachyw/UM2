@@ -128,6 +128,43 @@ UM2_NDEBUG_PURE auto numFaces(FaceVertexMesh<P, N, T, I> const & mesh) -> len_t
 }
 
 template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
+UM2_NDEBUG_PURE auto numEdges(FaceVertexMesh<P, N, T, I> const & mesh) -> len_t
+{
+  if (mesh.fv_offsets.empty()) {
+    return mesh.fv.size();
+  }
+  return mesh.fv_offsets.back() - mesh.fv_offsets.front() + mesh.fv_offsets.size() - 1;
+}
+
+template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
+UM2_NDEBUG_PURE auto getEdge(FaceVertexMesh<P, N, T, I> const & mesh) -> Vector<Point2<T>>
+{
+  Vector<Point2<T>> vertices;
+  if (!mesh.fv_offsets.empty()) {
+    for (auto i = 0; i < mesh.fv_offsets.size() - 1; i++) {
+      I next_offset = mesh.fv_offsets[i + 1] - 1;
+      for (auto j = mesh.fv_offsets[i]; j < next_offset; ++j) {
+        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[j])]);
+        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[j + 1])]);
+      }
+      vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[next_offset])]);
+      vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[mesh.fv_offsets[i]])]);
+    }
+  } else {
+    for (auto i = 0; i < mesh.fv.size(); ++i) {
+      if (i % N != (N - 1)) {
+        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i])]);
+        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i + 1])]);
+      } else {
+        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i])]);
+        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i - (N - 1)])]);
+      }
+    }
+  }
+  return vertices;
+}
+
+template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
 UM2_NDEBUG_PURE auto getFace(FaceVertexMesh<P, N, T, I> const & mesh, len_t id)
     -> Vector<Point2<T>>
 {
