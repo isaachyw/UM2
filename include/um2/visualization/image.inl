@@ -71,7 +71,9 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh, um2::Color edge_color,
     }
     std::cout << std::endl;
   }
-#pragma omp parallel for
+#ifdef _OPENMP
+#  pragma omp parallel for
+#endif
   for (len_t i_grid = 0; i_grid < grid_size; i_grid++) {
     for (len_t j_grid = 0; j_grid < grid_size; j_grid++) {
       len_t i_min = i_grid * ny / grid_size;
@@ -139,7 +141,9 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh, um2::Color edge_color,
    * render edge, use Bresenham's line algorithm
    */
   Vector<Point2<T>> points = getEdge(mesh);
-#pragma omp parallel for
+#ifdef _OPENMP
+#  pragma omp parallel for
+#endif
   for (len_t i = 0; i < numEdges(mesh); i++) {
     Vec<2, T> p0 = points[2 * i];
     Vec<2, T> p1 = points[2 * i + 1];
@@ -178,7 +182,9 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh, um2::Color edge_color,
   }
   // finally render the vertices, use a square, radius = 20
   len_t radius = static_cast<len_t>(pixel_density * vertex_radius);
-#pragma omp parallel for
+#ifdef _OPENMP
+#  pragma omp parallel for
+#endif
   for (auto idx = 0; idx < mesh.vertices.size(); idx++) {
     len_t x0 = len_t(std::floor(
         static_cast<double>((mesh.vertices[idx][0] - bbox.minima[0]) * nx) / width));
