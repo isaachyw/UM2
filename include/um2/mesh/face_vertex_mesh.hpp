@@ -6,6 +6,8 @@
 // #include <um2/mesh/mesh_file.hpp>
 
 #include <concepts>
+#include <iostream>
+#include <type_traits>
 
 namespace um2
 {
@@ -115,6 +117,11 @@ using QuadraticQuadMesh = QuadraticPolygonMesh<8, T, I>;
 template <std::floating_point T, std::signed_integral I>
 using QuadraticTriQuadMesh = QuadraticPolygonMesh<14, T, I>;
 
+template <typename I>
+struct ConditionalCast {
+  using Type = std::conditional_t<std::is_same_v<I, len_t>, I, len_t>;
+};
+
 // -- Methods --
 
 template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
@@ -127,41 +134,82 @@ UM2_NDEBUG_PURE auto numFaces(FaceVertexMesh<P, N, T, I> const & mesh) -> len_t
   }
 }
 
+// NOLINTBEGIN
 template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
-UM2_NDEBUG_PURE auto numEdges(FaceVertexMesh<P, N, T, I> const & mesh) -> len_t
+UM2_NDEBUG_PURE auto getEdge(FaceVertexMesh<P, N, T, I> const & mesh)
+    -> Vector<std::pair<I, I>>
 {
-  if (mesh.fv_offsets.empty()) {
-    return mesh.fv.size();
-  }
-  return mesh.fv_offsets.back() - mesh.fv_offsets.front() + mesh.fv_offsets.size() - 1;
-}
-
-template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
-UM2_NDEBUG_PURE auto getEdge(FaceVertexMesh<P, N, T, I> const & mesh) -> Vector<Point2<T>>
-{
-  Vector<Point2<T>> vertices;
+  Vector<std::pair<I, I>> edges;
+  Vector<std::pair<I, I>> unique_edges;
   if (!mesh.fv_offsets.empty()) {
-    for (auto i = 0; i < mesh.fv_offsets.size() - 1; i++) {
-      I next_offset = mesh.fv_offsets[i + 1] - 1;
-      for (auto j = mesh.fv_offsets[i]; j < next_offset; ++j) {
-        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[j])]);
-        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[j + 1])]);
+    for (len_t i = 0;
+         i < static_cast<typename ConditionalCast<I>::Type>(mesh.fv_offsets.size() - 1);
+         i++) {
+      I next_offset =
+          mesh.fv_offsets[static_cast<typename ConditionalCast<I>::Type>(i + 1)] - 1;
+      for (len_t j = static_cast<typename ConditionalCast<I>::Type>(mesh.fv_offsets[i]);
+           j < static_cast<typename ConditionalCast<I>::Type>(next_offset); ++j) {
+        if (mesh.fv[static_cast<typename ConditionalCast<I>::Type>(j)] <
+            mesh.fv[static_cast<typename ConditionalCast<I>::Type>(j) + 1]) {
+          edges.push_back(std::make_pair(
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(j)],
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(j) + 1]));
+        } else {
+          edges.push_back(std::make_pair(
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(j) + 1],
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(j)]));
+        }
       }
-      vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[next_offset])]);
-      vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[mesh.fv_offsets[i]])]);
+      if (mesh.fv[static_cast<typename ConditionalCast<I>::Type>(next_offset)] <
+          mesh.fv[static_cast<typename ConditionalCast<I>::Type>(mesh.fv_offsets[i])]) {
+        edges.push_back(std::make_pair(
+            mesh.fv[static_cast<typename ConditionalCast<I>::Type>(next_offset)],
+            mesh.fv[static_cast<typename ConditionalCast<I>::Type>(mesh.fv_offsets[i])]));
+      } else {
+        edges.push_back(std::make_pair(
+            mesh.fv[static_cast<typename ConditionalCast<I>::Type>(mesh.fv_offsets[i])],
+            mesh.fv[static_cast<typename ConditionalCast<I>::Type>(next_offset)]));
+      }
     }
   } else {
-    for (auto i = 0; i < mesh.fv.size(); ++i) {
-      if (i % N != (N - 1)) {
-        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i])]);
-        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i + 1])]);
+    for (len_t i = 0; i < static_cast<typename ConditionalCast<I>::Type>(mesh.fv.size());
+         ++i) {
+      if (i % N != static_cast<typename ConditionalCast<I>::Type>(N - 1)) {
+        if (mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i)] <
+            mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i) + 1]) {
+          edges.push_back(std::make_pair(
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i)],
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i) + 1]));
+        } else {
+          edges.push_back(std::make_pair(
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i) + 1],
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i)]));
+        }
       } else {
-        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i])]);
-        vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i - (N - 1)])]);
+        if (mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i)] <
+            mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i) -
+                    static_cast<typename ConditionalCast<I>::Type>(N - 1)]) {
+          edges.push_back(std::make_pair(
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i)],
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i) -
+                      static_cast<typename ConditionalCast<I>::Type>(N - 1)]));
+        } else {
+          edges.push_back(std::make_pair(
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i) -
+                      static_cast<typename ConditionalCast<I>::Type>(N - 1)],
+              mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i)]));
+        }
       }
     }
   }
-  return vertices;
+  unique_edges.reserve(edges.size());
+  for (auto e : edges) {
+    if (std::find(unique_edges.begin(), unique_edges.end(), e) == unique_edges.end()) {
+      unique_edges.push_back(e);
+    }
+  }
+
+  return unique_edges;
 }
 
 template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
@@ -171,19 +219,78 @@ UM2_NDEBUG_PURE auto getFace(FaceVertexMesh<P, N, T, I> const & mesh, len_t id)
   Vector<Point2<T>> vertices;
   if (!mesh.fv_offsets.empty()) {
     for (auto i = mesh.fv_offsets[id]; i < mesh.fv_offsets[id + 1]; ++i) {
-      vertices.push_back(
-          mesh.vertices[static_cast<len_t>(mesh.fv[static_cast<len_t>(i)])]);
+      vertices.push_back(mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(
+          mesh.fv[static_cast<typename ConditionalCast<I>::Type>(i)])]);
     }
   } else {
     for (auto i = id * N; i < (id + 1) * N; ++i) {
-      vertices.push_back(mesh.vertices[static_cast<len_t>(mesh.fv[i])]);
+      vertices.push_back(
+          mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(mesh.fv[i])]);
     }
   }
   return vertices;
 }
 
+// NOLINTEND
+
 template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
 UM2_NDEBUG_PURE auto boundingBox(FaceVertexMesh<P, N, T, I> const &) -> AABox2<T>;
+
+//////// -- STATISTICS --
+
+template <len_t P, len_t N, std::floating_point T, std::signed_integral I>
+void printMeshStats(FaceVertexMesh<P, N, T, I> const & mesh)
+{
+  Vector<std::pair<I, I>> edges = getEdge(mesh);
+  // find the maximum and minimum edge length
+  auto max_edge = std::max_element(
+      edges.begin(), edges.end(),
+      [&mesh](std::pair<I, I> const & a, std::pair<I, I> const & b) {
+        return um2::distance(
+                   mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(a.first)],
+                   mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(
+                       a.second)]) <
+               um2::distance(
+                   mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(b.first)],
+                   mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(
+                       b.second)]);
+      });
+  auto min_edge = std::max_element(
+      edges.begin(), edges.end(),
+      [&mesh](std::pair<I, I> const & a, std::pair<I, I> const & b) {
+        return um2::distance(
+                   mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(a.first)],
+                   mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(
+                       a.second)]) >=
+               um2::distance(
+                   mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(b.first)],
+                   mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(
+                       b.second)]);
+      });
+  T average_edge_length = 0;
+  for (auto & e : edges) {
+    average_edge_length += um2::distance(
+        mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(e.first)],
+        mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(e.second)]);
+  }
+  std::cout << "Mesh statistics:\n";
+  std::cout << "  Number of vertices: " << mesh.vertices.size() << "\n";
+  std::cout << "  Average edge length: "
+            << average_edge_length / static_cast<T>(edges.size()) << "\n";
+  std::cout << "  Minimum edge length: "
+            << um2::distance(mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(
+                                 min_edge->first)],
+                             mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(
+                                 min_edge->second)])
+            << "\n";
+  std::cout << "  Maximum edge length: "
+            << um2::distance(mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(
+                                 max_edge->first)],
+                             mesh.vertices[static_cast<typename ConditionalCast<I>::Type>(
+                                 max_edge->second)])
+            << "\n";
+  std::cout << "End of mesh statistics\n";
+}
 
 ////// -- IO --
 ////

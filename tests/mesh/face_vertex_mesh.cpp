@@ -127,6 +127,7 @@ TEST_CASE(boundingBox)
   };
   um2::AABox2<T> tri_quad_bbox = boundingBox(tri_quad_mesh);
   EXPECT_TRUE(um2::isApprox(tri_quad_bbox, tri_quad_ref_bbox));
+  um2::printMeshStats(tri_mesh);
   /*
   um2::QuadraticTriMesh<T, I> tri6_mesh;
   make_tri6_reference_mesh(tri6_mesh);

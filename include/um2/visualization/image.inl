@@ -65,12 +65,6 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh, um2::Color edge_color,
     partition.children[i].setConstant(-1);
   }
   partition.set_child(mesh);
-  for (auto const & child : partition.children) {
-    for (auto i = 0; i < 8; i++) {
-      std::cout << child[i] << " ";
-    }
-    std::cout << std::endl;
-  }
 #ifdef _OPENMP
 #  pragma omp parallel for
 #endif
@@ -140,13 +134,13 @@ Image::Image(const FaceVertexMesh<P, N, T, I> & mesh, um2::Color edge_color,
    *
    * render edge, use Bresenham's line algorithm
    */
-  Vector<Point2<T>> points = getEdge(mesh);
+  Vector<std::pair<I, I>> edges = getEdge(mesh);
 #ifdef _OPENMP
 #  pragma omp parallel for
 #endif
-  for (len_t i = 0; i < numEdges(mesh); i++) {
-    Vec<2, T> p0 = points[2 * i];
-    Vec<2, T> p1 = points[2 * i + 1];
+  for (len_t i = 0; i < edges.size(); i++) {
+    Vec<2, T> p0 = mesh.vertices[edges[i].first];
+    Vec<2, T> p1 = mesh.vertices[edges[i].second];
     len_t x0 =
         len_t(std::floor(static_cast<double>((p0[0] - bbox.minima[0]) * nx) / width));
     len_t y0 =
